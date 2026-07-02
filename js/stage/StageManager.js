@@ -14,6 +14,7 @@ export class StageManager {
 
   setVerse(verse) {
     const verseElement = document.getElementById("verse");
+    verseElement.textContent = verse;
   }
 
   setStage(StageClass) {
@@ -21,13 +22,9 @@ export class StageManager {
 
     this.currentStage = new StageClass(this.engine);
 
+    this.currentStage.load();
     this.setVerse(this.currentStage.verse);
 
-    this.currentStage.load();
     this.currentStage.enter();
-  }
-
-  renderOverlay(ctx) {
-    this.currentStage.renderOverlay(ctx);
   }
 }
