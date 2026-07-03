@@ -69,6 +69,13 @@ export class Stage {
 
     if (this.selectedDecor.containsPoint(mouse)) {
       this.selectedDecor.anchorTo(mouse.x, mouse.y);
+    } else {
+      const delta = Matter.Vector.sub(mouse, this.selectedDecor.anchor());
+      const MAX_DIST = 15;
+
+      if (Matter.Vector.magnitudeSquared(delta) > MAX_DIST * MAX_DIST) {
+        this.unselectDecor();
+      }
     }
   }
 
@@ -83,6 +90,10 @@ export class Stage {
   }
 
   mouseup() {
+    this.unselectDecor();
+  }
+
+  unselectDecor() {
     if (!this.selectedDecor) return;
 
     Matter.Body.set(

@@ -1,7 +1,6 @@
 export class Decor {
   constructor(stage) {
     this.stage = stage;
-
     this.body = Matter.Body.create();
     this.parts = [];
     this.defaultRestitution = null;

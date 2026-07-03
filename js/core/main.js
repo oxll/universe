@@ -1,9 +1,6 @@
 /*
  * TODO:
  *
- * prevent mouse tunneling
- *
- *
  */
 
 import { createEngine } from "./engine.js";
