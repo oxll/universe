@@ -61,7 +61,7 @@ export class Stage {
       Matter.Body.set(
         this.selectedDecor.body,
         "restitution",
-        defaultRestitution,
+        this.selectedDecor.defaultRestitution,
       );
     }
 
