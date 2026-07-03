@@ -10,8 +10,6 @@ export class Stage {
     this.height = 400;
 
     this.enclosure = new Decor(this).addProperty("isStatic", true);
-    this.add(this.enclosure.body);
-    this.resizeEnclosure();
 
     this.verse = "";
 
@@ -21,6 +19,10 @@ export class Stage {
 
   bodies() {
     return Matter.Composite.allBodies(this.engine.world);
+  }
+
+  decorFromPart(part) {
+    return this.decors.find((decor) => decor.body === part.parent);
   }
 
   load() {}
@@ -44,38 +46,50 @@ export class Stage {
   beforeUpdate() {
     if (!this.selectedDecor) return;
 
-    const x = mouse.x - this.selectedDecor.anchor().x;
-    const y = mouse.y - this.selectedDecor.anchor().y;
+    const dx = mouse.x - this.selectedDecor.anchor().x;
+    const dy = mouse.y - this.selectedDecor.anchor().y;
 
-    Matter.Body.setVelocity(this.selectedDecor.body, { x, y });
+    Matter.Body.setVelocity(this.selectedDecor.body, { x: dx, y: dy });
+  }
 
-    const isInside =
-      Matter.Query.point([this.selectedDecor.body], { x: mouse.x, y: mouse.y })
-        .length > 0;
-    if (isInside) {
+  afterUpdate() {
+    if (!this.selectedDecor) return;
+
+    if (this.selectedDecor.collisions.has(this.enclosure)) {
+      Matter.Body.set(this.selectedDecor.body, "restitution", 0);
+    } else {
+      Matter.Body.set(
+        this.selectedDecor.body,
+        "restitution",
+        defaultRestitution,
+      );
+    }
+
+    if (!this.selectedDecor.collisions.size) return;
+
+    if (this.selectedDecor.containsPoint(mouse)) {
       this.selectedDecor.anchorTo(mouse.x, mouse.y);
     }
   }
 
-  // afterRender(): if anchor is still in another body, then lose it (unselect/unanchor)
-  // also fix glitch: make static and setPosition instead?
-
-
   afterRender(ctx) {}
 
   mousedown() {
-    const selectedBodies = Matter.Query.point(this.bodies(), mouse);
-    if (!selectedBodies.length) return;
+    this.selectedDecor = this.decors.find((decor) => {
+      return decor.containsPoint(mouse);
+    });
 
-    this.selectedDecor = this.decors.find(
-      (decor) => decor.body === selectedBodies[0],
-    );
-
-    this.selectedDecor.anchorTo(mouse.x, mouse.y);
+    this.selectedDecor?.anchorTo(mouse.x, mouse.y);
   }
 
   mouseup() {
     if (!this.selectedDecor) return;
+
+    Matter.Body.set(
+      this.selectedDecor.body,
+      "restitution",
+      this.selectedDecor.defaultRestitution,
+    );
 
     this.selectedDecor.unanchor();
     this.selectedDecor = null;
@@ -89,8 +103,7 @@ export class Stage {
     const h = stageW / windowRatio;
     const t = Math.max(stageW, stageH);
 
-    Matter.Body.setParts(this.enclosure.body, []);
-    this.enclosure.parts = [];
+    this.enclosure.clearParts();
 
     if (windowRatio < stageW / stageH) {
       this.enclosure
@@ -106,6 +119,6 @@ export class Stage {
         .addPart("rect", "", stageW / 2, stageH + t / 2, w, t);
     }
 
-    Matter.Body.setParts(this.enclosure.body, this.enclosure.parts);
+    this.enclosure.build();
   }
 }

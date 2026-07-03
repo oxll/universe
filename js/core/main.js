@@ -1,3 +1,11 @@
+/*
+ * TODO:
+ * 
+ * prevent mouse tunneling
+ * 
+ * 
+ */
+
 import { createEngine } from "./engine.js";
 import { StageManager } from "../stage/StageManager.js";
 import { John_3_16 } from "../stages/John_3_16.js";
@@ -18,25 +26,69 @@ Matter.Render.run(render);
 manager.setStage(John_3_16);
 resize();
 
-Matter.Events.on(engine, "beforeUpdate", () => {
-  if (!manager.currentStage) return;
+Matter.Events.on(engine, "collisionStart", (e) => {
+  e.pairs.forEach((pair) => {
+    if (!manager.curStage) return;
 
-  manager.currentStage.beforeUpdate();
+    const decorA = manager.curStage.decorFromPart(pair.bodyA);
+    const decorB = manager.curStage.decorFromPart(pair.bodyB);
+
+    decorA.collisions.add(decorB);
+    decorB.collisions.add(decorA);
+  });
+});
+
+Matter.Events.on(engine, "collisionActive", (e) => {
+  e.pairs.forEach((pair) => {
+    if (!manager.curStage) return;
+
+    const decorA = manager.curStage.decorFromPart(pair.bodyA);
+    const decorB = manager.curStage.decorFromPart(pair.bodyB);
+
+    decorA.collisions.add(decorB);
+    decorB.collisions.add(decorA);
+  });
+});
+
+Matter.Events.on(engine, "collisionEnd", (e) => {
+  e.pairs.forEach((pair) => {
+    if (!manager.curStage) return;
+
+    const decorA = manager.curStage.decorFromPart(pair.bodyA);
+    const decorB = manager.curStage.decorFromPart(pair.bodyB);
+
+    decorA.collisions.add(decorB);
+    decorB.collisions.add(decorA);
+  });
+});
+
+Matter.Events.on(engine, "beforeUpdate", () => {
+  if (!manager.curStage) return;
+
+  manager.curStage.decors.forEach((decor) => {
+    decor.collisions.clear();
+  });
+
+  manager.curStage.beforeUpdate();
+});
+
+Matter.Events.on(engine, "afterUpdate", () => {
+  manager.curStage?.afterUpdate();
 });
 
 Matter.Events.on(render, "afterRender", () => {
-  if (!manager.currentStage) return;
+  if (!manager.curStage) return;
 
   const ctx = render.context;
 
   ctx.translate(dx, dy);
   ctx.scale(k, k);
 
-  manager.currentStage.afterRender(ctx);
+  manager.curStage.afterRender(ctx);
 });
 
 window.addEventListener("mousedown", () => {
-  manager.currentStage?.mousedown();
+  manager.curStage?.mousedown();
 });
 
 window.addEventListener("mousemove", (event) => {
@@ -52,7 +104,7 @@ window.addEventListener("mousemove", (event) => {
 });
 
 window.addEventListener("mouseup", () => {
-  manager.currentStage?.mouseup();
+  manager.curStage?.mouseup();
 });
 
 window.addEventListener("resize", resize);
@@ -97,5 +149,5 @@ function resize() {
     verseContainer.style.width = `${percentWindowWidth}vw`;
   }
 
-  manager.currentStage.resizeEnclosure();
+  manager.curStage.resizeEnclosure();
 }

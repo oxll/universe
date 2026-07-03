@@ -12,23 +12,38 @@ export class John_3_16 extends Stage {
     this.ball = new Decor(this)
       .addPart("circle", "blue", 50, 100, 30)
       .addProperty("restitution", 0.8)
-      .addProperty("isSensor", false)
       .build();
 
     this.table = new Decor(this)
       .addPart("rectangle", "#562e0c", 100, 250, 25, 100)
       .addPart("rectangle", "#562e0c", 300, 250, 25, 100)
       .addPart("rectangle", "#562e0c", 200, 200, 275, 25)
+      .addProperty("restitution", 0.8)
       .build();
   }
 
   afterRender(ctx) {
-    ctx.fillStyle = "#ff000022";
+    ctx.fillStyle = this.ball.collisions.has(this.enclosure)
+      ? "#ff01"
+      : "#f001";
     ctx.fillRect(0, 0, this.width, this.height);
+
+    if (this.ball.body.restitution === 0.8) {
+      ctx.beginPath();
+      ctx.arc(
+        this.ball.body.position.x,
+        this.ball.body.position.y,
+        30,
+        0,
+        2 * Math.PI,
+      );
+      ctx.fillStyle = "#00ffaa";
+      ctx.fill();
+    }
 
     if (!this.ball.anchor()) return;
 
     ctx.fillStyle = "#000";
-    ctx.fillRect(this.ball.anchor().x, this.ball.anchor().y, 10, 10);
+    ctx.fillRect(this.ball.anchor().x - 5, this.ball.anchor().y - 5, 10, 10);
   }
 }

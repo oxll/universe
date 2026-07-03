@@ -1,15 +1,15 @@
 export class StageManager {
   constructor(engine) {
     this.engine = engine;
-    this.currentStage = null;
+    this.curStage = null;
   }
 
   stageWidth() {
-    return this.currentStage.width;
+    return this.curStage.width;
   }
 
   stageHeight() {
-    return this.currentStage.height;
+    return this.curStage.height;
   }
 
   setVerse(verse) {
@@ -18,13 +18,14 @@ export class StageManager {
   }
 
   setStage(StageClass) {
-    this.currentStage?.exit();
+    this.curStage?.exit();
 
-    this.currentStage = new StageClass(this.engine);
+    this.curStage = new StageClass(this.engine);
+    this.curStage.resizeEnclosure();
 
-    this.currentStage.load();
-    this.setVerse(this.currentStage.verse);
+    this.curStage.load();
+    this.setVerse(this.curStage.verse);
 
-    this.currentStage.enter();
+    this.curStage.enter();
   }
 }

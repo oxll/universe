@@ -1,11 +1,17 @@
-import { manager } from "../core/main.js";
-
 export class Decor {
   constructor(stage) {
     this.stage = stage;
+
     this.body = Matter.Body.create();
     this.parts = [];
+    this.defaultRestitution = null;
+    this.collisions = new Set();
     this.anchorOffset = null;
+  }
+
+  clearParts() {
+    Matter.Body.setParts(this.body, []);
+    this.parts = [];
   }
 
   addPart(shape, color, ...dimensions) {
@@ -31,10 +37,17 @@ export class Decor {
   }
 
   build() {
-    manager.currentStage.decors.push(this);
+    if (!this.stage.decors.includes(this)) {
+      this.stage.decors.push(this);
+    }
 
     Matter.Body.setParts(this.body, this.parts);
-    manager.currentStage.add(this.body);
+
+    if (!this.stage.bodies().includes(this)) {
+      this.stage.add(this.body);
+    }
+
+    this.defaultRestitution = this.body.restitution;
 
     return this;
   }
@@ -62,5 +75,9 @@ export class Decor {
 
   unanchor() {
     this.anchorOffset = null;
+  }
+
+  containsPoint(point) {
+    return Matter.Query.point(this.body.parts, point).length > 0;
   }
 }
