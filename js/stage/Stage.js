@@ -1,4 +1,4 @@
-import { Decor } from "../decor/Decor.js";
+import { Item } from "../item/Item.js";
 import { mouse } from "../core/main.js";
 
 export class Stage {
@@ -9,23 +9,34 @@ export class Stage {
     this.width = 400;
     this.height = 400;
 
-    this.enclosure = new Decor(this).addProperty("isStatic", true);
+    this.enclosure = new Item(this).addProperty("isStatic", true);
 
     this.verse = "";
+    this.verseReference = "";
 
-    this.decors = [];
-    this.selectedDecor = null;
+    this.items = [];
+    this.selectedItem = null;
+  }
+
+  setDimensions() {}
+
+  verse() {
+    return "";
+  }
+
+  verseReference() {
+    return "";
   }
 
   bodies() {
     return Matter.Composite.allBodies(this.engine.world);
   }
 
-  decorFromPart(part) {
-    return this.decors.find((decor) => decor.body === part.parent);
+  itemFromPart(part) {
+    return this.items.find((item) => item.body === part.parent);
   }
 
-  load() {}
+  loadItem() {}
 
   enter() {
     Matter.Composite.add(this.engine.world, this.composite);
@@ -44,37 +55,37 @@ export class Stage {
   }
 
   beforeUpdate() {
-    if (!this.selectedDecor) return;
+    if (!this.selectedItem) return;
 
-    const dx = mouse.x - this.selectedDecor.anchor().x;
-    const dy = mouse.y - this.selectedDecor.anchor().y;
+    const dx = mouse.x - this.selectedItem.anchor().x;
+    const dy = mouse.y - this.selectedItem.anchor().y;
 
-    Matter.Body.setVelocity(this.selectedDecor.body, { x: dx, y: dy });
+    Matter.Body.setVelocity(this.selectedItem.body, { x: dx, y: dy });
   }
 
   afterUpdate() {
-    if (!this.selectedDecor) return;
+    if (!this.selectedItem) return;
 
-    if (this.selectedDecor.collisions.has(this.enclosure)) {
-      Matter.Body.set(this.selectedDecor.body, "restitution", 0);
+    if (this.selectedItem.collisions.has(this.enclosure)) {
+      Matter.Body.set(this.selectedItem.body, "restitution", 0);
     } else {
       Matter.Body.set(
-        this.selectedDecor.body,
+        this.selectedItem.body,
         "restitution",
-        this.selectedDecor.defaultRestitution,
+        this.selectedItem.defaultRestitution,
       );
     }
 
-    if (!this.selectedDecor.collisions.size) return;
+    if (!this.selectedItem.collisions.size) return;
 
-    if (this.selectedDecor.containsPoint(mouse)) {
-      this.selectedDecor.anchorTo(mouse.x, mouse.y);
+    if (this.selectedItem.containsPoint(mouse)) {
+      this.selectedItem.anchorTo(mouse.x, mouse.y);
     } else {
-      const delta = Matter.Vector.sub(mouse, this.selectedDecor.anchor());
+      const delta = Matter.Vector.sub(mouse, this.selectedItem.anchor());
       const MAX_DIST = 15;
 
       if (Matter.Vector.magnitudeSquared(delta) > MAX_DIST * MAX_DIST) {
-        this.unselectDecor();
+        this.unselectItem();
       }
     }
   }
@@ -82,28 +93,28 @@ export class Stage {
   afterRender(ctx) {}
 
   mousedown() {
-    this.selectedDecor = this.decors.find((decor) => {
-      return decor.containsPoint(mouse);
+    this.selectedItem = this.items.find((item) => {
+      return item.containsPoint(mouse);
     });
 
-    this.selectedDecor?.anchorTo(mouse.x, mouse.y);
+    this.selectedItem?.anchorTo(mouse.x, mouse.y);
   }
 
   mouseup() {
-    this.unselectDecor();
+    this.unselectItem();
   }
 
-  unselectDecor() {
-    if (!this.selectedDecor) return;
+  unselectItem() {
+    if (!this.selectedItem) return;
 
     Matter.Body.set(
-      this.selectedDecor.body,
+      this.selectedItem.body,
       "restitution",
-      this.selectedDecor.defaultRestitution,
+      this.selectedItem.defaultRestitution,
     );
 
-    this.selectedDecor.unanchor();
-    this.selectedDecor = null;
+    this.selectedItem.unanchor();
+    this.selectedItem = null;
   }
 
   resizeEnclosure() {

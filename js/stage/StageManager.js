@@ -1,31 +1,45 @@
 export class StageManager {
   constructor(engine) {
     this.engine = engine;
-    this.curStage = null;
+    this.stage = null;
   }
 
   stageWidth() {
-    return this.curStage.width;
+    return this.stage.width;
   }
 
   stageHeight() {
-    return this.curStage.height;
+    return this.stage.height;
   }
 
-  setVerse(verse) {
-    const verseElement = document.getElementById("verse");
-    verseElement.textContent = verse;
+  parseVerse(unparsedVerse) {
+    let verse = unparsedVerse;
+
+    verse = verse.replace(/\[(.*?)\]/g, "<span class=\"hidden\">$1</span>");
+    //verse = verse.replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>');
+
+    return verse;
+  }
+
+  loadVerse() {
+    const verse = document.getElementById("verse");
+    const reference = document.getElementById("verse-reference");
+
+    verse.innerHTML = this.parseVerse(this.stage.verse);
+    reference.innerHTML = this.stage.verseReference;
   }
 
   setStage(StageClass) {
-    this.curStage?.exit();
+    this.stage?.exit();
+    this.stage = new StageClass(this.engine);
 
-    this.curStage = new StageClass(this.engine);
-    this.curStage.resizeEnclosure();
+    this.stage.setDimensions();
+    this.stage.resizeEnclosure();
 
-    this.curStage.load();
-    this.setVerse(this.curStage.verse);
+    this.stage.setVerse();
+    this.loadVerse();
 
-    this.curStage.enter();
+    this.stage.load();
+    this.stage.enter();
   }
 }

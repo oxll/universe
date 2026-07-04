@@ -25,67 +25,79 @@ resize();
 
 Matter.Events.on(engine, "collisionStart", (e) => {
   e.pairs.forEach((pair) => {
-    if (!manager.curStage) return;
+    if (!manager.stage) return;
 
-    const decorA = manager.curStage.decorFromPart(pair.bodyA);
-    const decorB = manager.curStage.decorFromPart(pair.bodyB);
+    const itemA = manager.stage.itemFromPart(pair.bodyA);
+    const itemB = manager.stage.itemFromPart(pair.bodyB);
 
-    decorA.collisions.add(decorB);
-    decorB.collisions.add(decorA);
+    itemA.collisions.add(itemB);
+    itemB.collisions.add(itemA);
   });
 });
 
 Matter.Events.on(engine, "collisionActive", (e) => {
   e.pairs.forEach((pair) => {
-    if (!manager.curStage) return;
+    if (!manager.stage) return;
 
-    const decorA = manager.curStage.decorFromPart(pair.bodyA);
-    const decorB = manager.curStage.decorFromPart(pair.bodyB);
+    const itemA = manager.stage.itemFromPart(pair.bodyA);
+    const itemB = manager.stage.itemFromPart(pair.bodyB);
 
-    decorA.collisions.add(decorB);
-    decorB.collisions.add(decorA);
+    itemA.collisions.add(itemB);
+    itemB.collisions.add(itemA);
   });
 });
 
 Matter.Events.on(engine, "collisionEnd", (e) => {
   e.pairs.forEach((pair) => {
-    if (!manager.curStage) return;
+    if (!manager.stage) return;
 
-    const decorA = manager.curStage.decorFromPart(pair.bodyA);
-    const decorB = manager.curStage.decorFromPart(pair.bodyB);
+    const itemA = manager.stage.itemFromPart(pair.bodyA);
+    const itemB = manager.stage.itemFromPart(pair.bodyB);
 
-    decorA.collisions.add(decorB);
-    decorB.collisions.add(decorA);
+    itemA.collisions.add(itemB);
+    itemB.collisions.add(itemA);
   });
 });
 
 Matter.Events.on(engine, "beforeUpdate", () => {
-  if (!manager.curStage) return;
+  if (!manager.stage) return;
 
-  manager.curStage.decors.forEach((decor) => {
-    decor.collisions.clear();
+  manager.stage.items.forEach((item) => {
+    item.collisions.clear();
   });
 
-  manager.curStage.beforeUpdate();
+  manager.stage.beforeUpdate();
 });
 
 Matter.Events.on(engine, "afterUpdate", () => {
-  manager.curStage?.afterUpdate();
+  manager.stage?.afterUpdate();
 });
 
 Matter.Events.on(render, "afterRender", () => {
-  if (!manager.curStage) return;
+  if (!manager.stage) return;
 
   const ctx = render.context;
+
+  // JUNK {
+  const span = document.querySelector("#verse .hidden:nth-child(3)");
+  const rect = span.getBoundingClientRect();
+
+  ctx.fillRect(
+    rect.left,
+    rect.top,
+    rect.right - rect.left,
+    rect.bottom - rect.top,
+  );
+  // }
 
   ctx.translate(dx, dy);
   ctx.scale(k, k);
 
-  manager.curStage.afterRender(ctx);
+  manager.stage.afterRender(ctx);
 });
 
 window.addEventListener("mousedown", () => {
-  manager.curStage?.mousedown();
+  manager.stage?.mousedown();
 });
 
 window.addEventListener("mousemove", (event) => {
@@ -101,7 +113,7 @@ window.addEventListener("mousemove", (event) => {
 });
 
 window.addEventListener("mouseup", () => {
-  manager.curStage?.mouseup();
+  manager.stage?.mouseup();
 });
 
 window.addEventListener("resize", resize);
@@ -146,5 +158,5 @@ function resize() {
     verseContainer.style.width = `${percentWindowWidth}vw`;
   }
 
-  manager.curStage.resizeEnclosure();
+  manager.stage.resizeEnclosure();
 }

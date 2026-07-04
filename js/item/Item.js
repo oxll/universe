@@ -1,4 +1,4 @@
-export class Decor {
+export class Item {
   constructor(stage) {
     this.stage = stage;
     this.body = Matter.Body.create();
@@ -36,8 +36,8 @@ export class Decor {
   }
 
   build() {
-    if (!this.stage.decors.includes(this)) {
-      this.stage.decors.push(this);
+    if (!this.stage.items.includes(this)) {
+      this.stage.items.push(this);
     }
 
     Matter.Body.setParts(this.body, this.parts);
