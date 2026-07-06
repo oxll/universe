@@ -7,6 +7,10 @@ export class John_3_16 extends Stage {
     this.height = 400;
   }
 
+  setBackgroundColor() {
+    this.backgroundColor = "#ffa";
+  }
+
   setVerse() {
     this.verse = `For God so loved the [world] that
       he gave his one and only [Son],
@@ -18,41 +22,29 @@ export class John_3_16 extends Stage {
   }
 
   load() {
-    this.ball = new Item(this)
-      .addPart("circle", "blue", 50, 100, 30)
-      .addProperty("restitution", 0.8)
-      .build();
-
     this.table = new Item(this)
-      .addPart("rectangle", "#562e0c", 100, 250, 25, 100)
-      .addPart("rectangle", "#562e0c", 300, 250, 25, 100)
-      .addPart("rectangle", "#562e0c", 200, 200, 275, 25)
+      .addPart("rectangle", "#562e0c", 0, 0, 300, 20)
+      .addPart("rectangle", "#562e0c", -120, 50, 20, 100)
+      .addPart("rectangle", "#562e0c", 120, 50, 20, 100)
+      .addProperty("restitution", 0.8)
+      .build(175, 300);
+
+    this.ball = new Item(this)
+      .addPart("circle", "blue", 100, 100, 30)
       .addProperty("restitution", 0.8)
       .build();
   }
 
-  afterRender(ctx) {
-    ctx.fillStyle = this.ball.collisions.has(this.enclosure)
-      ? "#ff01"
-      : "#f001";
+  beforeRender(ctx) {
+    ctx.fillStyle = "#f002";
     ctx.fillRect(0, 0, this.width, this.height);
+  }
 
-    // if (this.ball.body.restitution === 0.8) {
-    //   ctx.beginPath();
-    //   ctx.arc(
-    //     this.ball.body.position.x,
-    //     this.ball.body.position.y,
-    //     30,
-    //     0,
-    //     2 * Math.PI,
-    //   );
-    //   ctx.fillStyle = "#00ffaa";
-    //   ctx.fill();
-    // }
+  afterRender(ctx) {
+    const span = document.querySelector("#verse .hidden:nth-child(3)");
+    const rect = this.mapToStage(span.getBoundingClientRect());
 
-    // if (!this.ball.anchor()) return;
-
-    // ctx.fillStyle = "#000";
-    // ctx.fillRect(this.ball.anchor().x - 5, this.ball.anchor().y - 5, 10, 10);
+    ctx.fillStyle = "#f009";
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
   }
 }

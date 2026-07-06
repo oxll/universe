@@ -8,9 +8,14 @@ body {
   overflow: hidden;
 }
 
+#backdrop {
+  z-index: 0;
+}
+
 #verse-container {
-  position: absolute;
-  padding: 20px;
+  position: fixed;
+  z-index: 1;
+  padding: 4vmin;
   top: 0%;
   left: 50%;
   transform: translateX(-50%);
@@ -29,7 +34,7 @@ body {
 
 #verse {
   font-family: "Libre Baskerville", "Times New Roman", serif;
-  font-size: 40px;
+  font-size: 4.5vmin;
 }
 
 #verse .hidden {
@@ -40,5 +45,10 @@ body {
 
 #verse-reference {
   font-family: "Inter", Arial, sans-serif;
-  font-size: 30px;
+  font-size: 4vmin;
+}
+
+canvas {
+  position: fixed;
+  z-index: 2;
 }

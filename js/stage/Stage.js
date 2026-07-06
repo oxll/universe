@@ -1,5 +1,6 @@
 import { Item } from "../item/Item.js";
 import { mouse } from "../core/main.js";
+import { map } from "../utils/utils.js";
 
 export class Stage {
   constructor(engine) {
@@ -11,6 +12,8 @@ export class Stage {
 
     this.enclosure = new Item(this).addProperty("isStatic", true);
 
+    this.backgroundColor = "#222";
+
     this.verse = "";
     this.verseReference = "";
 
@@ -20,12 +23,29 @@ export class Stage {
 
   setDimensions() {}
 
-  verse() {
-    return "";
+  setBackgroundColor() {}
+
+  applyBackgroundColor() {
+    document.body.style.backgroundColor = this.backgroundColor;
   }
 
-  verseReference() {
-    return "";
+  setVerse() {}
+
+  parseVerse(verse) {
+    let parsedVerse = verse;
+
+    parsedVerse = verse.replace(/\[(.*?)\]/g, '<span class="hidden">$1</span>');
+    //parsedVerse = verse.replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>');
+
+    return parsedVerse;
+  }
+
+  loadVerse() {
+    const verse = document.getElementById("verse");
+    const reference = document.getElementById("verse-reference");
+
+    verse.innerHTML = this.parseVerse(this.verse);
+    reference.innerHTML = this.verseReference;
   }
 
   bodies() {
@@ -36,7 +56,7 @@ export class Stage {
     return this.items.find((item) => item.body === part.parent);
   }
 
-  loadItem() {}
+  load() {}
 
   enter() {
     Matter.Composite.add(this.engine.world, this.composite);
@@ -90,6 +110,8 @@ export class Stage {
     }
   }
 
+  beforeRender(ctx) {}
+
   afterRender(ctx) {}
 
   mousedown() {
@@ -115,6 +137,73 @@ export class Stage {
 
     this.selectedItem.unanchor();
     this.selectedItem = null;
+  }
+
+  mapToStage(rect) {
+    const stageRatio = this.width / this.height;
+    const windowRatio = window.innerWidth / window.innerHeight;
+
+    if (windowRatio < stageRatio) {
+      const mappedHeight = this.width / windowRatio;
+
+      const x = map(rect.left, 0, window.innerWidth, 0, this.width);
+
+      const y = map(
+        rect.top,
+        0,
+        window.innerHeight,
+        this.height - mappedHeight,
+        this.height,
+      );
+
+      const w = map(
+        rect.right - rect.left,
+        0,
+        window.innerWidth,
+        0,
+        this.width,
+      );
+
+      const h = map(
+        rect.bottom - rect.top,
+        0,
+        window.innerWidth,
+        0,
+        this.width,
+      );
+
+      return { x, y, w, h };
+    } else {
+      const mappedWidth = this.height * windowRatio;
+
+      const x = map(
+        rect.left,
+        0,
+        window.innerWidth,
+        this.width / 2 - mappedWidth / 2,
+        this.width / 2 + mappedWidth / 2,
+      );
+
+      const y = map(rect.top, 0, window.innerHeight, 0, this.height);
+
+      const w = map(
+        right.right - rect.left,
+        0,
+        window.innerHeight,
+        0,
+        this.height,
+      );
+
+      const h = map(
+        rect.bottom - rect.top,
+        0,
+        window.innerHeight,
+        0,
+        this.height,
+      );
+
+      return { x, y, w, h };
+    }
   }
 
   resizeEnclosure() {

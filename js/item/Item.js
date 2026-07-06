@@ -35,7 +35,7 @@ export class Item {
     return this;
   }
 
-  build() {
+  build(x, y) {
     if (!this.stage.items.includes(this)) {
       this.stage.items.push(this);
     }
@@ -47,6 +47,10 @@ export class Item {
     }
 
     this.defaultRestitution = this.body.restitution;
+
+    if (typeof x === "number" && typeof y === "number") {
+      Matter.Body.setPosition(this.body, { x, y });
+    }
 
     return this;
   }

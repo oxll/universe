@@ -9,13 +9,15 @@ import { John_3_16 } from "../stages/John_3_16.js";
 
 const { engine, render, runner } = createEngine();
 
-export const manager = new StageManager(engine);
+const manager = new StageManager(engine);
 
-export const mouse = { x: 0, y: 0 };
+const backdrop = document.getElementById("backdrop");
 
 let dx = 0,
   dy = 0,
   k = 1;
+
+export const mouse = { x: 0, y: 0 };
 
 Matter.Runner.run(runner, engine);
 Matter.Render.run(render);
@@ -73,22 +75,27 @@ Matter.Events.on(engine, "afterUpdate", () => {
   manager.stage?.afterUpdate();
 });
 
+Matter.Events.on(render, "beforeRender", () => {
+  if (!manager.stage) return;
+
+  const ctx = backdrop.getContext("2d");
+
+  ctx.clearRect(0, 0, backdrop.width, backdrop.height);
+
+  ctx.save();
+
+  ctx.translate(dx, dy);
+  ctx.scale(k, k);
+
+  manager.stage.beforeRender(ctx);
+
+  ctx.restore();
+});
+
 Matter.Events.on(render, "afterRender", () => {
   if (!manager.stage) return;
 
   const ctx = render.context;
-
-  // JUNK {
-  const span = document.querySelector("#verse .hidden:nth-child(3)");
-  const rect = span.getBoundingClientRect();
-
-  ctx.fillRect(
-    rect.left,
-    rect.top,
-    rect.right - rect.left,
-    rect.bottom - rect.top,
-  );
-  // }
 
   ctx.translate(dx, dy);
   ctx.scale(k, k);
@@ -121,8 +128,8 @@ window.addEventListener("resize", resize);
 function resize() {
   const verseContainer = document.getElementById("verse-container");
 
-  render.canvas.width = window.innerWidth;
-  render.canvas.height = window.innerHeight;
+  render.canvas.width = backdrop.width = window.innerWidth;
+  render.canvas.height = backdrop.height = window.innerHeight;
   render.options.width = window.innerWidth;
   render.options.height = window.innerHeight;
 

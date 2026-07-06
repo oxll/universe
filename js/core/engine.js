@@ -11,7 +11,7 @@ export function createEngine() {
       width: window.innerWidth,
       height: window.innerHeight,
       wireframes: false,
-      background: "#222",
+      background: "#2220",
     },
   });
 
